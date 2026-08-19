@@ -101,6 +101,7 @@ fn clearPreviousActiveAccountKey(allocator: std.mem.Allocator, reg: *Registry) v
         allocator.free(key);
         reg.previous_active_account_key = null;
     }
+
 }
 
 pub fn updateUsage(allocator: std.mem.Allocator, reg: *Registry, account_key: []const u8, snapshot: RateLimitSnapshot) void {
@@ -326,6 +327,20 @@ pub fn removeAccounts(allocator: std.mem.Allocator, codex_home: []const u8, reg:
         }
         if (previous_removed) {
             clearPreviousActiveAccountKey(allocator, reg);
+        }
+    }
+
+    if (reg.repoprompt_account_key) |key| {
+        var repoprompt_removed = false;
+        for (reg.accounts.items, 0..) |rec, i| {
+            if (removed[i] and std.mem.eql(u8, rec.account_key, key)) {
+                repoprompt_removed = true;
+                break;
+            }
+        }
+        if (repoprompt_removed) {
+            allocator.free(key);
+            reg.repoprompt_account_key = null;
         }
     }
 

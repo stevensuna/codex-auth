@@ -23,6 +23,7 @@ const import_workflow = @import("import.zig");
 const export_workflow = @import("export.zig");
 const switch_workflow = @import("switch.zig");
 const remove_workflow = @import("remove.zig");
+const repoprompt_workflow = @import("repoprompt.zig");
 const alias_workflow = @import("alias.zig");
 const workflow_env = @import("env.zig");
 const targets = @import("targets.zig");
@@ -159,6 +160,7 @@ fn runMain(init: std.process.Init.Minimal) !void {
         .remove_account => |opts| try remove_workflow.handleRemove(allocator, codex_home.?, opts),
         .alias => |opts| try alias_workflow.handleAlias(allocator, codex_home.?, opts),
         .clean => |opts| try clean_workflow.handleClean(allocator, codex_home.?, opts),
+        .repoprompt => |opts| try repoprompt_workflow.handle(allocator, codex_home.?, opts),
     }
 }
 
@@ -167,6 +169,7 @@ fn commandWantsJson(cmd: *const cli.types.Command) bool {
         .list => |opts| opts.json,
         .switch_account => |opts| opts.json,
         .remove_account => |opts| opts.json,
+        .repoprompt => |opts| opts.json,
         else => false,
     };
 }

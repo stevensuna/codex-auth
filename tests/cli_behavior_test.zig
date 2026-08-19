@@ -77,6 +77,48 @@ fn expectArgv(actual: []const []const u8, expected: []const []const u8) !void {
     }
 }
 
+test "Scenario: Given RepoPrompt shortcut when parsing then account selection is requested" {
+    const gpa = std.testing.allocator;
+    const args = [_][:0]const u8{ "codex-auth", "-rp" };
+    var result = try cli.commands.parseArgs(gpa, &args);
+    defer cli.commands.freeParseResult(gpa, &result);
+
+    switch (result) {
+        .command => |cmd| switch (cmd) {
+            .repoprompt => |opts| try std.testing.expectEqual(cli.types.RepoPromptAction.select, opts.action),
+            else => return error.TestExpectedEqual,
+        },
+        else => return error.TestExpectedEqual,
+    }
+}
+
+test "Scenario: Given RepoPrompt token command when parsing then JSON machine output is required" {
+    const gpa = std.testing.allocator;
+    const args = [_][:0]const u8{ "codex-auth", "repoprompt", "token", "--json" };
+    var result = try cli.commands.parseArgs(gpa, &args);
+    defer cli.commands.freeParseResult(gpa, &result);
+
+    switch (result) {
+        .command => |cmd| switch (cmd) {
+            .repoprompt => |opts| {
+                try std.testing.expectEqual(cli.types.RepoPromptAction.token, opts.action);
+                try std.testing.expect(opts.json);
+            },
+            else => return error.TestExpectedEqual,
+        },
+        else => return error.TestExpectedEqual,
+    }
+}
+
+test "Scenario: Given RepoPrompt shortcut help when parsing then RepoPrompt help is returned" {
+    const gpa = std.testing.allocator;
+    const args = [_][:0]const u8{ "codex-auth", "-rp", "--help" };
+    var result = try cli.commands.parseArgs(gpa, &args);
+    defer cli.commands.freeParseResult(gpa, &result);
+
+    try expectHelp(result, .repoprompt);
+}
+
 test "Scenario: Given app launch overrides when parsing then IDs and paths are preserved" {
     const gpa = std.testing.allocator;
     const args = [_][:0]const u8{

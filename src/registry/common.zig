@@ -137,6 +137,7 @@ pub const Registry = struct {
     schema_version: u32,
     active_account_key: ?[]u8,
     previous_active_account_key: ?[]u8 = null,
+    repoprompt_account_key: ?[]u8 = null,
     active_account_activated_at_ms: ?i64,
     api: ApiConfig,
     live: LiveConfig = defaultLiveConfig(),
@@ -148,6 +149,7 @@ pub const Registry = struct {
         }
         if (self.active_account_key) |k| allocator.free(k);
         if (self.previous_active_account_key) |k| allocator.free(k);
+        if (self.repoprompt_account_key) |k| allocator.free(k);
         self.accounts.deinit(allocator);
     }
 };

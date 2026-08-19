@@ -487,6 +487,27 @@ test "registry save/load round-trips account_name null" {
     try std.testing.expect(loaded.accounts.items[0].account_name == null);
 }
 
+test "registry save/load round-trips RepoPrompt account independently" {
+    const gpa = std.testing.allocator;
+    var tmp = fs.tmpDir(.{});
+    defer tmp.cleanup();
+
+    const codex_home = try tmp.dir.realpathAlloc(gpa, ".");
+    defer gpa.free(codex_home);
+    try tmp.dir.makePath("accounts");
+
+    var reg = makeEmptyRegistry();
+    defer reg.deinit(gpa);
+    reg.active_account_key = try gpa.dupe(u8, "active-account");
+    reg.repoprompt_account_key = try gpa.dupe(u8, "repoprompt-account");
+    try registry.saveRegistry(gpa, codex_home, &reg);
+
+    var loaded = try registry.loadRegistry(gpa, codex_home);
+    defer loaded.deinit(gpa);
+    try std.testing.expectEqualStrings("active-account", loaded.active_account_key.?);
+    try std.testing.expectEqualStrings("repoprompt-account", loaded.repoprompt_account_key.?);
+}
+
 test "registry load normalizes schema four without previous active account key" {
     const gpa = std.testing.allocator;
     var tmp = fs.tmpDir(.{});

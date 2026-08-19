@@ -76,6 +76,7 @@ pub fn defaultRegistry() Registry {
         .schema_version = current_schema_version,
         .active_account_key = null,
         .previous_active_account_key = null,
+        .repoprompt_account_key = null,
         .active_account_activated_at_ms = null,
         .api = defaultApiConfig(),
         .live = defaultLiveConfig(),
@@ -274,6 +275,12 @@ fn loadLegacyRegistryV2(
             else => {},
         }
     }
+    if (root_obj.get("repoprompt_account_key")) |v| {
+        switch (v) {
+            .string => |s| reg.repoprompt_account_key = try allocator.dupe(u8, s),
+            else => {},
+        }
+    }
     if (reg.active_account_key != null) {
         reg.active_account_activated_at_ms = 0;
     }
@@ -327,6 +334,12 @@ fn loadCurrentRegistry(allocator: std.mem.Allocator, root_obj: std.json.ObjectMa
     if (root_obj.get("previous_active_account_key")) |v| {
         switch (v) {
             .string => |s| reg.previous_active_account_key = try allocator.dupe(u8, s),
+            else => {},
+        }
+    }
+    if (root_obj.get("repoprompt_account_key")) |v| {
+        switch (v) {
+            .string => |s| reg.repoprompt_account_key = try allocator.dupe(u8, s),
             else => {},
         }
     }

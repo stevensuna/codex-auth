@@ -48,7 +48,14 @@ pub fn isHandledCliError(err: anyerror) bool {
         err == error.WindowsAppLaunchRequiresWindows or
         err == error.WindowsAppPlatformRequiresWindows or
         err == error.MacAppPlatformRequiresMacOS or
-        err == error.WindowsPassthroughArgsUnsupported;
+        err == error.WindowsPassthroughArgsUnsupported or
+        err == error.RepoPromptTokenRequiresPipe or
+        err == error.RepoPromptAccountNotSelected or
+        err == error.RepoPromptAccountNotFound or
+        err == error.RepoPromptAccountUnsupported or
+        err == error.RepoPromptAccountRefreshFailed or
+        err == error.RepoPromptAuthInvalid or
+        err == error.RepoPromptAccountMismatch;
 }
 
 pub fn ensureLiveTty(target: LiveTtyTarget) !void {

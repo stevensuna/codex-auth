@@ -37,6 +37,7 @@ pub fn writeHelp(
     try writeCommandSummary(out, use_color, "help <command>", "Show command-specific help");
     try writeCommandSummary(out, use_color, "--version, -V", "Show version");
     try writeCommandSummary(out, use_color, "-", "Switch to the previous active account");
+    try writeCommandSummary(out, use_color, "-rp", "Select the account RepoPrompt uses");
     try writeCommandSummary(out, use_color, "list [--live] [--active] [--api|--skip-api] [--json]", "List available accounts");
     try writeCommandSummary(out, use_color, "login [--device-auth]", "Login and add the current account");
     try writeCommandSummary(out, use_color, "import", "Import auth files or rebuild registry");
@@ -62,6 +63,7 @@ pub fn writeHelp(
     try writeCommandSummary(out, use_color, "config", "Manage configuration");
     try writeCommandDetail(out, use_color, "config live --interval <seconds>");
     try writeCommandSummary(out, use_color, "app", "Launch Codex App with CLI overrides");
+    try writeCommandSummary(out, use_color, "repoprompt token --json", "Provide the selected account to RepoPrompt over a pipe");
 
     try out.writeAll("\n");
     if (use_color) try out.writeAll(style.ansi.cyan);
@@ -137,6 +139,7 @@ fn commandNameForTopic(topic: HelpTopic) []const u8 {
         .clean => "clean",
         .config => "config",
         .app => "app",
+        .repoprompt => "repoprompt",
     };
 }
 
@@ -153,19 +156,20 @@ fn commandDescriptionForTopic(topic: HelpTopic) []const u8 {
         .clean => "Delete backup and stale files under accounts/.",
         .config => "Manage live refresh configuration.",
         .app => "Launch Codex App with CLI overrides.",
+        .repoprompt => "Select an account for RepoPrompt or provide its current access token.",
     };
 }
 
 fn commandHelpHasExamples(topic: HelpTopic) bool {
     return switch (topic) {
-        .import_auth, .export_auth, .switch_account, .remove_account, .alias, .config, .app => true,
+        .import_auth, .export_auth, .switch_account, .remove_account, .alias, .config, .app, .repoprompt => true,
         else => false,
     };
 }
 
 fn commandHelpHasOptions(topic: HelpTopic) bool {
     return switch (topic) {
-        .list, .login, .import_auth, .export_auth, .switch_account, .remove_account, .alias, .config, .app => true,
+        .list, .login, .import_auth, .export_auth, .switch_account, .remove_account, .alias, .config, .app, .repoprompt => true,
         else => false,
     };
 }
@@ -235,6 +239,10 @@ fn writeUsageLines(out: *std.Io.Writer, topic: HelpTopic) !void {
         .app => {
             try out.writeAll("  codex-auth app [--id <id>] [--codex-cli-path <path>] [--codex-home <path>] [--platform win|wsl|mac]\n");
         },
+        .repoprompt => {
+            try out.writeAll("  codex-auth -rp\n");
+            try out.writeAll("  codex-auth repoprompt token --json\n");
+        },
     }
 }
 
@@ -251,6 +259,7 @@ pub fn helpCommandForTopic(topic: HelpTopic) []const u8 {
         .clean => "codex-auth clean --help",
         .config => "codex-auth config --help",
         .app => "codex-auth app --help",
+        .repoprompt => "codex-auth repoprompt --help",
     };
 }
 
@@ -319,6 +328,9 @@ fn writeOptionLines(out: *std.Io.Writer, topic: HelpTopic) !void {
             try out.writeAll("  --platform win|wsl|mac\n");
             try out.writeAll("                     Preselect the app platform. Defaults to the current app setting on Windows and mac on macOS.\n");
             try out.writeAll("  --std              Resolve the app package executable, then attach stdout/stderr to this terminal.\n");
+        },
+        .repoprompt => {
+            try out.writeAll("  token --json   Provide the selected account token to RepoPrompt over a non-TTY pipe.\n");
         },
         else => {},
     }
@@ -395,6 +407,10 @@ fn writeExampleLines(out: *std.Io.Writer, topic: HelpTopic) !void {
         .app => {
             try out.writeAll("  codex-auth app\n");
             try out.writeAll("  codex-auth app --platform win\n");
+        },
+        .repoprompt => {
+            try out.writeAll("  codex-auth -rp\n");
+            try out.writeAll("  codex-auth repoprompt token --json | consumer\n");
         },
     }
 }

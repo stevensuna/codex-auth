@@ -11,6 +11,7 @@ const import_auth = @import("import.zig");
 const list = @import("list.zig");
 const login = @import("login.zig");
 const remove = @import("remove.zig");
+const repoprompt = @import("repoprompt.zig");
 const switch_account = @import("switch.zig");
 
 pub fn parseArgs(allocator: std.mem.Allocator, args: []const [:0]const u8) !types.ParseResult {
@@ -47,6 +48,13 @@ pub fn parseArgs(allocator: std.mem.Allocator, args: []const [:0]const u8) !type
         }
         return .{ .command = .{ .switch_account = .{ .target = .previous } } };
     }
+    if (std.mem.eql(u8, cmd, "-rp")) {
+        if (args.len == 3 and common.isHelpFlag(std.mem.sliceTo(args[2], 0))) {
+            return .{ .command = .{ .help = .repoprompt } };
+        }
+        if (args.len > 2) return common.usageErrorResult(allocator, .repoprompt, "unexpected argument after `-rp`: `{s}`.", .{std.mem.sliceTo(args[2], 0)});
+        return .{ .command = .{ .repoprompt = .{} } };
+    }
 
     if (std.mem.eql(u8, cmd, "list")) return list.parse(allocator, args[2..]);
     if (std.mem.eql(u8, cmd, "login")) return login.parse(allocator, args[2..]);
@@ -58,6 +66,7 @@ pub fn parseArgs(allocator: std.mem.Allocator, args: []const [:0]const u8) !type
     if (std.mem.eql(u8, cmd, "clean")) return clean.parse(allocator, args[2..]);
     if (std.mem.eql(u8, cmd, "config")) return config.parse(allocator, args[2..]);
     if (std.mem.eql(u8, cmd, "app")) return app.parse(allocator, args[2..]);
+    if (std.mem.eql(u8, cmd, "repoprompt")) return repoprompt.parse(allocator, args[2..]);
 
     return common.usageErrorResult(allocator, .top_level, "unknown command `{s}`.", .{cmd});
 }
@@ -120,5 +129,6 @@ fn helpTopicForName(name: []const u8) ?types.HelpTopic {
     if (std.mem.eql(u8, name, "clean")) return .clean;
     if (std.mem.eql(u8, name, "config")) return .config;
     if (std.mem.eql(u8, name, "app")) return .app;
+    if (std.mem.eql(u8, name, "repoprompt")) return .repoprompt;
     return null;
 }

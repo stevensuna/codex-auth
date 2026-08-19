@@ -72,6 +72,11 @@ pub const AppOptions = struct {
     platform: ?AppPlatform = null,
     inherit_stdio: bool = false,
 };
+pub const RepoPromptAction = enum { select, token };
+pub const RepoPromptOptions = struct {
+    action: RepoPromptAction = .select,
+    json: bool = false,
+};
 pub const HelpTopic = enum {
     top_level,
     list,
@@ -84,6 +89,7 @@ pub const HelpTopic = enum {
     clean,
     config,
     app,
+    repoprompt,
 };
 
 pub const Command = union(enum) {
@@ -97,6 +103,7 @@ pub const Command = union(enum) {
     clean: CleanOptions,
     config: ConfigOptions,
     app: AppOptions,
+    repoprompt: RepoPromptOptions,
     version: void,
     help: HelpTopic,
 };
