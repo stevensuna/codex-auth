@@ -101,7 +101,6 @@ fn clearPreviousActiveAccountKey(allocator: std.mem.Allocator, reg: *Registry) v
         allocator.free(key);
         reg.previous_active_account_key = null;
     }
-
 }
 
 pub fn updateUsage(allocator: std.mem.Allocator, reg: *Registry, account_key: []const u8, snapshot: RateLimitSnapshot) void {
